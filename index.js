@@ -17,8 +17,14 @@ mongoose
 
 app.use(express.json());
 app.use("/api/auth", authRoute);
-app.use("/api/users", userRoute);   
+app.use("/api/users", userRoute);  
+ 
+app.use(express.static("public")); // Serve static files from the "public" directory
 
+// Redirect to the login page when accessing the root URL
+app.get("/", (req, res) => {
+  res.redirect("/login.html");
+});
 
 app.listen(process.env.PORT || 3000, ()=>{
     console.log("Server is running");
