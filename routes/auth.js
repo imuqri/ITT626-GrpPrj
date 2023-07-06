@@ -26,40 +26,41 @@ router.post("/register", async (req,res)=>{
 //Login
 
 router.post("/login", async (req, res) => {
-    try {
-      const user = await User.findOne({ username: req.body.username });
-      if (!user) {
-        return res.status(401).json("Wrong Credentials!");
-      }
-  
-      const hashedPassword = CryptoJS.AES.decrypt(
-        user.password,
-        process.env.SEC_KEY
-      );
-      const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
-  
-      if (originalPassword !== req.body.password) {
-        return res.status(401).json("Wrong Credentials!");
-      }
-  
-      const accessToken = jwt.sign(
-        {
-          id: user._id,
-          isAdmin: user.isAdmin,
-        },
-        process.env.JWT_SEC,
-        { expiresIn: "1d" }
-      );
-  
-      // Redirect to the respective home page based on the user's role
-      if (user.isAdmin) {
-        return res.status(200).json({ redirect: "/admin/home.html" });
-      } else {
-        return res.status(200).json({ redirect: "/staff/home.html" });
-      }
-    } catch (err) {
-      res.status(500).json(err);
+  try {
+    const user = await User.findOne({ username: req.body.username });
+    if (!user) {
+      return res.status(401).json("Wrong Credentials!");
     }
-  });
-  
+
+    const hashedPassword = CryptoJS.AES.decrypt(
+      user.password,
+      process.env.SEC_KEY
+    );
+    const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
+
+    if (originalPassword !== req.body.password) {
+      return res.status(401).json("Wrong Credentials!");
+    }
+
+    const accessToken = jwt.sign(
+      {
+        id: user._id,
+        isAdmin: user.isAdmin,
+      },
+      process.env.JWT_SEC,
+      { expiresIn: "1d" }
+    );
+
+    const { password, ...others} = user._doc;
+    // Redirect to the respective home page based on the user's role
+    if (user.isAdmin) {
+      return res.status(200).json({ ...others, accessToken, redirect: "/homeAdmin" });
+    } else {
+      return res.status(200).json({ ...others, accessToken, redirect: "/homeStaff" });
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 module.exports = router
