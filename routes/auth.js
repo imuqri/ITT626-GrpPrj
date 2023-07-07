@@ -54,9 +54,9 @@ router.post("/login", async (req, res) => {
     const { password, ...others} = user._doc;
     // Redirect to the respective home page based on the user's role
     if (user.isAdmin) {
-      return res.status(200).json({ ...others, accessToken, redirect: "/homeAdmin" });
+      return res.status(200).json({ ...others, accessToken, redirect: "/admin/home.html" });
     } else {
-      return res.status(200).json({ ...others, accessToken, redirect: "/homeStaff" });
+      return res.status(200).json({ ...others, accessToken, redirect: "/staff/home.html" });
     }
   } catch (err) {
     res.status(500).json(err);
